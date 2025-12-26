@@ -134,7 +134,3 @@ The server hosts a lightweight HTML/JS dashboard at `http://localhost:8080/`.
 
 * [GitHub](https://github.com/gaurav337)
 * [LinkedIn](https://linkedin.com/in/gauravkrjangid)
-
-```
-
-```
