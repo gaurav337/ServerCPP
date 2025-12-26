@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>High Perf Server Dashboard</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: #f4f4f4;
+            /* Light grey background aankhon ke liye sahi rehta hai */
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            /* Corners thode round kar diye */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            /* Thoda 3D look dene ke liye shadow */
+            display: inline-block;
+            min-width: 300px;
+            /* Card bahut patla na dikhe isliye width fix ki */
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .metric {
+            font-size: 2em;
+            /* Numbers bade dikhne chahiye */
+            font-weight: bold;
+            color: #007BFF;
+            /* Blue color highlight ke liye */
+            margin: 10px 0;
+        }
+
+        .label {
+            color: #666;
+            /* Label thoda light color mein taaki focus numbers pe rahe */
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h1>Server Dashboard</h1>
+
+        <div>
+            <div class="metric" id="req_count">0</div>
+            <div class="label">Total Requests Handled</div>
+        </div>
+        <br>
+
+        <div>
+            <div class="metric" id="active_threads">0</div>
+            <div class="label">Active Threads</div>
+        </div>
+        <br>
+
+        <div>
+            <div class="metric" id="memory">0</div>
+            <div class="label">Memory (KB)</div>
+        </div>
+        <br>
+
+        <div>
+            <div class="metric" id="uptime">0</div>
+            <div class="label">Uptime (s)</div>
+        </div>
+    </div>
+
+    <script>
+        // Function jo server se latest data lekar aayega
+        function updateStats() {
+
+            // '/status' endpoint hit kar rahe hain data lene ke liye
+            fetch('/status')
+                .then(response => {
+                    // Check kar rahe hain ki response sahi aaya ya nahi
+                    if (!response.ok) {
+                        throw new Error("Network response thik nahi hai bhai");
+                    }
+                    return response.json(); // Data ko JSON format mein convert kar rahe hain
+                })
+                .then(data => {
+                    // Ab jo data aaya hai, usse HTML elements mein daal rahe hain
+                    document.getElementById('req_count').innerText = data.total_requests;
+                    document.getElementById('active_threads').innerText = data.active_threads;
+                    document.getElementById('memory').innerText = data.memory_usage_kb;
+                    document.getElementById('uptime').innerText = data.uptime_sec;
+                })
+                .catch(err => {
+                    // Agar server down hai ya code phat gaya, toh error yahan aayega
+                    console.error('Error fetching stats:', err);
+                });
+        }
+
+        // Ye line important hai: Har 500ms (aadha second) mein function dubara chalega
+        // Taaki dashboard live update hota rahe.
+        setInterval(updateStats, 500);
+
+        // Page load hote hi ek baar turant call kar rahe hain, wait nahi karna padega
+        updateStats();
+    </script>
+
+</body>
+
+</html>
